@@ -1,0 +1,12 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+
+body {
+    margin: 0 auto;
+}
+
+.radio {
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+}
