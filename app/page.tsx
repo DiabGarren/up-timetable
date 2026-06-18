@@ -1,6 +1,6 @@
 "use client";
 
-import { Checkbox, Label, Radio, RadioGroup } from "@heroui/react";
+import { Label, Radio, RadioGroup } from "@heroui/react";
 import { useState } from "react";
 import { extractText } from "unpdf";
 
