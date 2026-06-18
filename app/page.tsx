@@ -1,6 +1,6 @@
 "use client";
 
-import { Label, Radio, RadioGroup } from "@heroui/react";
+import { Checkbox, Label, Radio, RadioGroup } from "@heroui/react";
 import { useState } from "react";
 import { extractText } from "unpdf";
 
@@ -30,14 +30,17 @@ export default function Home() {
             },
         ];
     }
-    const [modules, setModules] = useState<Lecture[]>([]);
     const HEADER_REGEX = /^([A-Z]{2,4}\s\d{2,3})\s+(S\d)\s+([A-Z]+\d{1,3})\s+([A-Z])\s+([A-Z]{1,2})\s+(\S+)$/;
     const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
     const [semester, setSemester] = useState("S1");
+    const [modules, setModules] = useState<Lecture[]>([]);
+    const [selected, setSelected] = useState<Activity[]>([]);
+
+    console.log(selected);
 
     return (
-        <div>
+        <main>
             <input
                 type="file"
                 accept="application/pdf, .pdf"
@@ -176,7 +179,7 @@ export default function Home() {
                                         });
                                     }
                                 });
-                                
+
                                 setModules(modsNew);
                             })
                             .catch((err) => console.error(err));
@@ -191,51 +194,58 @@ export default function Home() {
                         <Radio.Control>
                             <Radio.Indicator />
                         </Radio.Control>
+                        Semester 1
                     </Radio.Content>
-                    Semester 1
                 </Radio>
                 <Radio value="S2">
                     <Radio.Content>
                         <Radio.Control>
                             <Radio.Indicator />
                         </Radio.Control>
+                        Semester 2
                     </Radio.Content>
-                    Semester 2
                 </Radio>
             </RadioGroup>
 
             <div
-                className={`module-container grid w-[85%] mx-auto my-4`}
-                style={{ gridTemplateColumns: `repeat(${modules.length}, 1fr)` }}>
+                className="module-container">
                 {modules.map((mod) =>
                     mod.sem == semester ? (
                         <div key={mod.code} className="module-card border w-[120px] h-[250px] overflow-y-auto">
                             <h2>{mod.code}</h2>
                             {mod.activities.map((act) => (
                                 <div key={act.id}>
-                                    <h3>{act.id == "L" ? "Lectures" : act.id == "P" ? "Pracs" : "Tuts"}</h3>
-                                    <div>
+                                    <RadioGroup
+                                        onChange={() => {
+                                            console.log(mod);
+                                        }}>
+                                        <Label>{act.id == "L" ? "Lectures" : act.id == "P" ? "Pracs" : "Tuts"}</Label>
                                         {act.group.map((group) => (
-                                            <div key={group.id}>
-                                                <h4>{group.id}</h4>
-                                            </div>
+                                            <Radio key={group.id} value={group.id}>
+                                                <Radio.Content>
+                                                    <Radio.Control>
+                                                        <Radio.Indicator />
+                                                    </Radio.Control>
+                                                    {group.id}
+                                                </Radio.Content>
+                                            </Radio>
                                         ))}
-                                    </div>
+                                    </RadioGroup>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div key={mod.code}></div>
+                        <></>
                     ),
                 )}
             </div>
-            <div className="grid grid-cols-5 gap-4 text-center w-[95%] mx-auto">
+            <div className="timetable">
                 <div>Monday</div>
                 <div>Tuesday</div>
                 <div>Wednesday</div>
                 <div>Thursday</div>
                 <div>Friday</div>
             </div>
-        </div>
+        </main>
     );
 }

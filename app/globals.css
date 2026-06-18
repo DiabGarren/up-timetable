@@ -3,6 +3,7 @@
 
 body {
     margin: 0 auto;
+	overflow: hidden;
 }
 
 .radio {
@@ -11,10 +12,32 @@ body {
     flex-direction: row;
 }
 
+.module-container {
+	display: flex;
+	flex-direction: row;
+	margin-inline: auto;
+	width: 85%;
+
+	&>* {
+		flex: 0 0 120px;
+	}
+}
+
 .module-container,
 .module-card {
     overflow: auto;
 }
+
+
+.timetable {
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	margin-inline: auto;
+	width: 90%;
+}
+
+
+
 
 @supports selector(::-webkit-scrollbar) {
     .module-container::-webkit-scrollbar,
