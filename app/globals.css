@@ -6,7 +6,37 @@ body {
 }
 
 .radio {
-	display: flex;
-	align-items: center;
-	flex-direction: row;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+
+.module-container,
+.module-card {
+    overflow: auto;
+}
+
+@supports selector(::-webkit-scrollbar) {
+    .module-container::-webkit-scrollbar,
+    .module-card::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+    .module-container::-webkit-scrollbar-track,
+    .module-card::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .module-container::-webkit-scrollbar-thumb,
+    .module-card::-webkit-scrollbar-thumb {
+        border-radius: 3px;
+        background: #888;
+    }
+}
+
+@supports not selector(::-webkit-scrollbar) {
+    .module-container,
+    .module-card {
+        scrollbar-width: thin;
+    }
 }

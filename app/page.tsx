@@ -1,7 +1,6 @@
 "use client";
 
 import { Label, Radio, RadioGroup } from "@heroui/react";
-import ModulesCard from "../components/modulesCard";
 import { useState } from "react";
 import { extractText } from "unpdf";
 
@@ -15,7 +14,23 @@ export default function Home() {
             { id: string; lessons: [{ sessionId: string; day: string; time: string; venue: string; campus: string }] },
         ];
     }
-    const [modules, setModules] = useState<Activity[]>([]);
+    interface Lecture {
+        code: string;
+        sem: string;
+        lang: string;
+        activities: [
+            {
+                id: string;
+                group: [
+                    {
+                        id: string;
+                        lessons: [{ sessionId: string; day: string; time: string; venue: string; campus: string }];
+                    },
+                ];
+            },
+        ];
+    }
+    const [modules, setModules] = useState<Lecture[]>([]);
     const HEADER_REGEX = /^([A-Z]{2,4}\s\d{2,3})\s+(S\d)\s+([A-Z]+\d{1,3})\s+([A-Z])\s+([A-Z]{1,2})\s+(\S+)$/;
     const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
@@ -144,7 +159,25 @@ export default function Home() {
                                     }
                                 }
 
-                                setModules(mods);
+                                const modsNew: Lecture[] = [];
+
+                                mods.forEach((mod) => {
+                                    if (modsNew.some((m) => m.code == mod.code)) {
+                                        modsNew[modsNew.findIndex((m) => m.code == mod.code)].activities.push({
+                                            id: mod.activity,
+                                            group: mod.group,
+                                        });
+                                    } else {
+                                        modsNew.push({
+                                            code: mod.code,
+                                            sem: mod.sem,
+                                            lang: mod.lang,
+                                            activities: [{ id: mod.activity, group: mod.group }],
+                                        });
+                                    }
+                                });
+                                
+                                setModules(modsNew);
                             })
                             .catch((err) => console.error(err));
                     }
@@ -171,7 +204,31 @@ export default function Home() {
                 </Radio>
             </RadioGroup>
 
-            <ModulesCard modules={modules} semester={semester} />
+            <div
+                className={`module-container grid w-[85%] mx-auto my-4`}
+                style={{ gridTemplateColumns: `repeat(${modules.length}, 1fr)` }}>
+                {modules.map((mod) =>
+                    mod.sem == semester ? (
+                        <div key={mod.code} className="module-card border w-[120px] h-[250px] overflow-y-auto">
+                            <h2>{mod.code}</h2>
+                            {mod.activities.map((act) => (
+                                <div key={act.id}>
+                                    <h3>{act.id == "L" ? "Lectures" : act.id == "P" ? "Pracs" : "Tuts"}</h3>
+                                    <div>
+                                        {act.group.map((group) => (
+                                            <div key={group.id}>
+                                                <h4>{group.id}</h4>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div key={mod.code}></div>
+                    ),
+                )}
+            </div>
             <div className="grid grid-cols-5 gap-4 text-center w-[95%] mx-auto">
                 <div>Monday</div>
                 <div>Tuesday</div>

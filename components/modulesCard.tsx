@@ -43,24 +43,30 @@ export default function ModulesCard({
     });
 
     return (
-        <div className={`grid w-[85%] overflow-x-auto mx-auto my-4`} style={{gridTemplateColumns: `repeat(${mods.length}, 1fr)`}}>
-            {mods.map((mod) => (
-                <div key={mod.code} className="border w-[80px] h-[250px] overflow-y-auto">
-                    <h2>{mod.code}</h2>
-                    {mod.activities.map((act) => (
-                        <div key={act.id}>
-                            <h3>{act.id == "L" ? "Lectures" : act.id == "P" ? "Pracs" : "Tuts"}</h3>
-                            <div>
-                                {act.group.map((group) => (
-                                    <div key={group.id}>
-                                        <h4>{group.id}</h4>
-                                    </div>
-                                ))}
+        <div
+            className={`module-container grid w-[85%] mx-auto my-4`}
+            style={{ gridTemplateColumns: `repeat(${mods.length}, 1fr)` }}>
+            {mods.map((mod) =>
+                mod.sem == semester ? (
+                    <div key={mod.code} className="module-card border w-[120px] h-[250px] overflow-y-auto">
+                        <h2>{mod.code}</h2>
+                        {mod.activities.map((act) => (
+                            <div key={act.id}>
+                                <h3>{act.id == "L" ? "Lectures" : act.id == "P" ? "Pracs" : "Tuts"}</h3>
+                                <div>
+                                    {act.group.map((group) => (
+                                        <div key={group.id}>
+                                            <h4>{group.id}</h4>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
-            ))}
+                        ))}
+                    </div>
+                ) : (
+                    <div key={mod.code}></div>
+                ),
+            )}
         </div>
     );
 }
