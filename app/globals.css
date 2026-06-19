@@ -30,8 +30,6 @@ body {
 
 
 .timetable {
-	display: grid;
-	grid-template-columns: repeat(5, 1fr);
 	margin-inline: auto;
 	width: 90%;
 }
