@@ -123,7 +123,17 @@ export default function Home() {
     >([]);
     const [timetable, setTimetable] = useState<string[][]>(InitialiseTable());
 
-    console.log(timetable);
+    function clearTimetable() {
+        setTimetable(InitialiseTable());
+        const mods = modules.map((mod) => ({
+            ...mod,
+            activities: mod.activities.map((act) => ({
+                ...act,
+                group: act.group.map((g) => ({ ...g, selected: false })),
+            })),
+        }));
+        setModules(mods);
+    }
 
     return (
         <main>
@@ -292,7 +302,13 @@ export default function Home() {
                 }}
             />
 
-            <RadioGroup orientation="horizontal" value={semester} onChange={setSemester}>
+            <RadioGroup
+                orientation="horizontal"
+                value={semester}
+                onChange={(value) => {
+                    setSemester(value);
+                    clearTimetable();
+                }}>
                 <Label />
                 <Radio value="S1">
                     <Radio.Content>
@@ -435,15 +451,7 @@ export default function Home() {
             </div>
             <Button
                 onClick={() => {
-                    setTimetable(InitialiseTable());
-                    const mods = modules.map((mod) => ({
-                        ...mod,
-                        activities: mod.activities.map((act) => ({
-                            ...act,
-                            group: act.group.map((g) => ({ ...g, selected: false })),
-                        })),
-                    }));
-                    setModules(mods);
+                    clearTimetable();
                 }}>
                 Clear Timetable
             </Button>
