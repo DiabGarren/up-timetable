@@ -104,7 +104,23 @@ export default function Home() {
     ];
 
     const [semester, setSemester] = useState("S1");
-    const [modules, setModules] = useState<Lecture[]>([]);
+    const [modules, setModules] = useState<
+        | Lecture[]
+        | {
+              activities: {
+                  group: {
+                      selected: boolean;
+                      id: string;
+                      lessons: [{ sessionId: string; day: string; time: string; venue: string; campus: string }];
+                  }[];
+                  id: string;
+              }[];
+              code: string;
+              colour: string;
+              sem: string;
+              lang: string;
+          }[]
+    >([]);
     const [timetable, setTimetable] = useState<string[][]>(InitialiseTable());
 
     console.log(timetable);
@@ -311,7 +327,7 @@ export default function Home() {
                                                 : null
                                         }
                                         onChange={(value) => {
-                                            const mods: Lecture[] = modules.map((mod, index) => {
+                                            const mods = modules.map((mod, index) => {
                                                 if (index !== mIndex) return mod;
                                                 return {
                                                     ...mod,
@@ -420,7 +436,7 @@ export default function Home() {
             <Button
                 onClick={() => {
                     setTimetable(InitialiseTable());
-                    const mods: Lecture[] = modules.map((mod) => ({
+                    const mods = modules.map((mod) => ({
                         ...mod,
                         activities: mod.activities.map((act) => ({
                             ...act,
