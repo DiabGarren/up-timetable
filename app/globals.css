@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "@heroui/styles";
 
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0 auto;
 	overflow: hidden;
@@ -32,10 +36,61 @@ body {
 .timetable {
 	margin-inline: auto;
 	width: 90%;
+    display: grid;
+    grid-template-columns: 50px 1fr;
+
+    &>*:first-child {
+        grid-column: 1/2;
+        margin-top: 13px;
+        & *{
+            height: 26px;
+        }
+    }
+    &>*:last-child {
+        grid-column: 2/3;
+        table-layout: fixed;
+        width: 100%;
+        & td {
+            border-right: 2px solid black;
+        }
+        & tr td:first-child {
+            border-left: 2px solid black;
+        } 
+        & tr {
+            height: 26px;
+            border-bottom: 2px solid black;
+        }
+        & tr:nth-child(2n){
+            background-color: #dbdbdb;
+        }
+        & tbody tr:last-child {
+            border-bottom: none;
+        }
+    }
 }
 
 
-
+.red {
+    background-color: #da5234;
+}
+.pink {
+    background-color: #d6837a;
+}
+.yellow {
+    background-color: #e7ba51;
+}
+.green {
+    background-color: #54ae7e;
+}
+.blue {
+    background-color: #4b99d2;
+}
+.purple {
+    background-color: #a75aba;
+}
+.grey {
+    background-color: #7c7c7c;
+}
 
 @supports selector(::-webkit-scrollbar) {
     .module-container::-webkit-scrollbar,

@@ -1,21 +1,34 @@
 "use client";
 
-import { Label, Radio, RadioGroup } from "@heroui/react";
+import { Button, Label, Radio, RadioGroup } from "@heroui/react";
 import { useState } from "react";
 import { extractText } from "unpdf";
 
 function ConvertTime(time: string): number[] {
     const startH = parseInt(time.substring(0, 2)),
         startM = time.substring(3, 5) != "00" ? 30 : 0,
-        endH = parseInt(time.substring(8, 10)),
-        endM = time.substring(11, 13) != "00" ? 30 : 0;
+        endM = time.substring(11, 13) != "50" ? 30 : 0,
+        endH = parseInt(time.substring(8, 10)) + (endM == 0 ? 1 : 0);
+
     const startIndex = startH - 7 + (startH - 7) - (startM == 0 ? 1 : 0),
-        endIndex = endH - 7 + (endH - 7) - (endM == 0 ? 1 : 0);
+        endIndex = endH - 7 + (endH - 7) - (endM == 0 ? 1 : 0) - 1;
+
     return [startIndex, endIndex];
 }
 
 function ConvertDay(day: string, DAYS: string[]): number {
     return DAYS.indexOf(day);
+}
+function InitialiseTable(): string[][] {
+    const tempTable: string[][] = [];
+    for (let r = 0; r < 20; r++) {
+        const row: string[] = [];
+        for (let c = 0; c < 5; c++) {
+            row.push("");
+        }
+        tempTable.push(row);
+    }
+    return tempTable;
 }
 
 export default function Home() {
@@ -30,6 +43,7 @@ export default function Home() {
     }
     interface Lecture {
         code: string;
+        colour: string;
         sem: string;
         lang: string;
         activities: [
@@ -48,19 +62,50 @@ export default function Home() {
 
     const HEADER_REGEX = /^([A-Z]{2,4}\s\d{2,3})\s+(S\d)\s+([A-Z]+\d{1,3})\s+([A-Z])\s+([A-Z]{1,2})\s+(\S+)$/;
     const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+    const TIMES = [
+        "07:30",
+        "08:00",
+        "08:30",
+        "09:00",
+        "09:30",
+        "10:00",
+        "10:30",
+        "11:00",
+        "11:30",
+        "12:00",
+        "12:30",
+        "13:00",
+        "13:30",
+        "14:00",
+        "14:30",
+        "15:00",
+        "15:30",
+        "16:00",
+        "16:30",
+        "17:00",
+        "17:30",
+    ];
 
-    const tempTable: string[][] = [];
-    for (let r = 0; r < 21; r++) {
-        const row: string[] = [];
-        for (let c = 0; c < 5; c++) {
-            row.push("");
-        }
-        tempTable.push(row);
-    }
+    const COLOURS = [
+        "red",
+        "pink",
+        "yellow",
+        "green",
+        "blue",
+        "purple",
+        "grey",
+        "red",
+        "pink",
+        "yellow",
+        "green",
+        "blue",
+        "purple",
+        "grey",
+    ];
 
     const [semester, setSemester] = useState("S1");
     const [modules, setModules] = useState<Lecture[]>([]);
-    const [timetable, setTimetable] = useState<string[][]>(tempTable);
+    const [timetable, setTimetable] = useState<string[][]>(InitialiseTable());
 
     console.log(timetable);
 
@@ -188,36 +233,42 @@ export default function Home() {
                                 }
 
                                 const modsNew: Lecture[] = [];
-
                                 mods.forEach((mod) => {
+                                    let groups: [
+                                        {
+                                            id: string;
+                                            lessons: [
+                                                {
+                                                    sessionId: string;
+                                                    day: string;
+                                                    time: string;
+                                                    venue: string;
+                                                    campus: string;
+                                                },
+                                            ];
+                                            selected: boolean;
+                                        },
+                                    ];
+                                    mod.group.forEach((group, index) => {
+                                        if (index == 0)
+                                            groups = [{ id: group.id, lessons: group.lessons, selected: false }];
+                                        else groups.push({ id: group.id, lessons: group.lessons, selected: false });
+                                    });
                                     if (modsNew.some((m) => m.code == mod.code)) {
                                         modsNew[modsNew.findIndex((m) => m.code == mod.code)].activities.push({
                                             id: mod.activity,
-                                            group: [
-                                                { id: mod.group[0].id, lessons: mod.group[0].lessons, selected: false },
-                                            ],
+                                            group: groups!,
                                         });
                                     } else {
                                         modsNew.push({
                                             code: mod.code,
+                                            colour: COLOURS[modsNew.length],
                                             sem: mod.sem,
                                             lang: mod.lang,
-                                            activities: [
-                                                {
-                                                    id: mod.activity,
-                                                    group: [
-                                                        {
-                                                            id: mod.group[0].id,
-                                                            lessons: mod.group[0].lessons,
-                                                            selected: false,
-                                                        },
-                                                    ],
-                                                },
-                                            ],
+                                            activities: [{ id: mod.activity, group: groups! }],
                                         });
                                     }
                                 });
-
                                 setModules(modsNew);
                             })
                             .catch((err) => console.error(err));
@@ -245,71 +296,141 @@ export default function Home() {
                 </Radio>
             </RadioGroup>
 
-            <div className="module-container">
-                {modules.map((mod) =>
-                    mod.sem == semester ? (
-                        <div key={mod.code} className="module-card border w-[120px] h-[250px] overflow-y-auto">
-                            <h2>{mod.code}</h2>
-                            {mod.activities.map((act) => (
-                                <RadioGroup
-                                    key={mod.code + "-" + act.id}
-                                    onChange={(value) => {
-                                        const group =
-                                            mod.activities[0].group[
-                                                mod.activities[0].group.findIndex((m) => m.id == value)
-                                            ].lessons;
+            {modules.length > 0 ? (
+                <div className="module-container">
+                    {modules.map((mod, mIndex) =>
+                        mod.sem == semester ? (
+                            <div key={mod.code} className="module-card border w-[120px] h-[250px] overflow-y-auto">
+                                <h2 className={mod.colour}>{mod.code}</h2>
+                                {mod.activities.map((act, aIndex) => (
+                                    <RadioGroup
+                                        key={mod.code + "-" + act.id}
+                                        value={
+                                            act.group.findIndex((act) => act.selected == true) != -1
+                                                ? act.group[act.group.findIndex((act) => act.selected == true)].id
+                                                : null
+                                        }
+                                        onChange={(value) => {
+                                            const mods: Lecture[] = modules.map((mod, index) => {
+                                                if (index !== mIndex) return mod;
+                                                return {
+                                                    ...mod,
+                                                    activities: mod.activities.map((a, aIdx) => {
+                                                        if (aIdx !== aIndex) return a;
+                                                        return {
+                                                            ...a,
+                                                            group: a.group.map((g) => ({
+                                                                ...g,
+                                                                selected: g.id == value,
+                                                            })),
+                                                        };
+                                                    }),
+                                                };
+                                            });
+                                            setModules(mods);
 
-                                        const tempTable = timetable;
-                                        group.forEach((lesson) => {
-                                            for (
-                                                let i = ConvertTime(lesson.time)[0];
-                                                i <= ConvertTime(lesson.time)[1];
-                                                i++
-                                            ) {
-                                                tempTable[i][ConvertDay(lesson.day, DAYS)] = mod.code;
-                                            }
-                                        });
-                                        setTimetable(tempTable);
-                                    }}>
-                                    <Label>{act.id == "L" ? "Lectures" : act.id == "P" ? "Pracs" : "Tuts"}</Label>
-                                    {act.group.map((group) => (
-                                        <Radio key={mod.code + "-" + act.id + "-" + group.id} value={group.id}>
-                                            <Radio.Content>
-                                                <Radio.Control>
-                                                    <Radio.Indicator />
-                                                </Radio.Control>
-                                                {group.id}
-                                            </Radio.Content>
-                                        </Radio>
-                                    ))}
-                                </RadioGroup>
-                            ))}
-                        </div>
-                    ) : (
-                        <></>
-                    ),
-                )}
-            </div>
-            <table className="timetable">
-                <thead>
-                    <tr>
-                        <th>Monday</th>
-                        <th>Tuesday</th>
-                        <th>Wednesday</th>
-                        <th>Thursday</th>
-                        <th>Friday</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {timetable.map((day, index) => (
-                        <tr key={DAYS[index]}>
-                            {day.map((cell, index) => (
-                                <td key={DAYS[index] + "-" + index}>{cell}</td>
-                            ))}
-                        </tr>
+                                            const lessons =
+                                                act.group[act.group.findIndex((g) => g.id == value)].lessons;
+                                            const tempTable = timetable.map((row) => [...row]);
+
+                                            tempTable.forEach((row, rIndex) => {
+                                                row.forEach((col, cIndex) => {
+                                                    const code = col.substring(0, 7),
+                                                        actId = col.substring(10, 11),
+                                                        groupId = col.substring(14);
+                                                    if (code == mod.code && actId == act.id && groupId != value)
+                                                        tempTable[rIndex][cIndex] = "";
+                                                });
+                                            });
+
+                                            lessons.forEach((lesson) => {
+                                                for (
+                                                    let i = ConvertTime(lesson.time)[0];
+                                                    i <= ConvertTime(lesson.time)[1];
+                                                    i++
+                                                ) {
+                                                    tempTable[i][ConvertDay(lesson.day, DAYS)] =
+                                                        mod.code + " - " + act.id + " - " + value;
+                                                }
+                                            });
+                                            setTimetable(tempTable);
+                                        }}>
+                                        <Label>{act.id == "L" ? "Lectures" : act.id == "P" ? "Pracs" : "Tuts"}</Label>
+                                        {act.group.map((group, gIndex) => (
+                                            <Radio key={mod.code + "-" + act.id + "-" + group.id} value={group.id}>
+                                                <Radio.Content>
+                                                    <Radio.Control>
+                                                        <Radio.Indicator />
+                                                    </Radio.Control>
+                                                    {group.id}
+                                                </Radio.Content>
+                                            </Radio>
+                                        ))}
+                                    </RadioGroup>
+                                ))}
+                            </div>
+                        ) : (
+                            <></>
+                        ),
+                    )}
+                </div>
+            ) : (
+                <></>
+            )}
+
+            <div className="timetable">
+                <div>
+                    {TIMES.map((time) => (
+                        <p key={time}>{time}</p>
                     ))}
-                </tbody>
-            </table>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Monday</th>
+                            <th>Tuesday</th>
+                            <th>Wednesday</th>
+                            <th>Thursday</th>
+                            <th>Friday</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {timetable.map((day, index) => (
+                            <tr key={TIMES[index]}>
+                                {day.map((cell, index) => (
+                                    <td
+                                        key={DAYS[index] + "-" + index}
+                                        className={
+                                            modules.length > 0
+                                                ? cell != ""
+                                                    ? modules[modules.findIndex((m) => m.code == cell.substring(0, 7))]
+                                                          .colour
+                                                    : ""
+                                                : ""
+                                        }>
+                                        {cell}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                        <tr></tr>
+                    </tbody>
+                </table>
+            </div>
+            <Button
+                onClick={() => {
+                    setTimetable(InitialiseTable());
+                    const mods: Lecture[] = modules.map((mod) => ({
+                        ...mod,
+                        activities: mod.activities.map((act) => ({
+                            ...act,
+                            group: act.group.map((g) => ({ ...g, selected: false })),
+                        })),
+                    }));
+                    setModules(mods);
+                }}>
+                Clear Timetable
+            </Button>
         </main>
     );
 }
