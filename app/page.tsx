@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, Label, Radio, RadioGroup } from "@heroui/react";
+import { Button, ColorArea, ColorPicker, ColorSlider, Label, parseColor, Radio, RadioGroup } from "@heroui/react";
+import Image from "next/image";
 import { useState } from "react";
 import { extractText } from "unpdf";
 
@@ -132,6 +133,23 @@ export default function Home() {
             })),
         }));
         setModules(mods);
+    }
+
+    function convertColour(h: number, s: number, l: number): string {
+        const lDecimal = l / 100;
+        const a = (s * Math.min(lDecimal, 1 - lDecimal)) / 100;
+
+        const f = (n: number) => {
+            const k = (n + h / 30) % 12;
+            const color = lDecimal - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+
+            // Convert to a 2-digit hexadecimal string
+            return Math.round(255 * color)
+                .toString(16)
+                .padStart(2, "0");
+        };
+
+        return `#${f(0)}${f(8)}${f(4)}`;
     }
 
     return (
@@ -338,7 +356,48 @@ export default function Home() {
                             <div
                                 key={mod.code + "-" + mIndex}
                                 className="module-card border w-[120px] h-[250px] overflow-y-auto">
-                                <h2 style={{ backgroundColor: mod.colour }}>{mod.code}</h2>
+                                <div style={{ backgroundColor: mod.colour }}>
+                                    <ColorPicker
+                                        value={mod.colour}
+                                        onChange={(value) => {
+                                            const mods = modules.map((mod, index) => {
+                                                return {
+                                                    ...mod,
+                                                    colour:
+                                                        index == mIndex
+                                                            ? convertColour(
+                                                                  value.getChannelValue("hue"),
+                                                                  value.getChannelValue("saturation"),
+                                                                  value.getChannelValue("lightness"),
+                                                              )
+                                                            : mod.colour,
+                                                };
+                                            });
+                                            setModules(mods);
+                                        }}>
+                                        <ColorPicker.Trigger>
+                                            <h2>{mod.code}</h2>
+                                            <Image
+                                                src={"/color-picker-dropper.svg"}
+                                                alt={"Colour picker"}
+                                                objectFit={"cover"}
+                                                width={25}
+                                                height={25}
+                                            />
+                                        </ColorPicker.Trigger>
+                                        <ColorPicker.Popover>
+                                            <ColorArea colorSpace="hsl" xChannel="saturation" yChannel="lightness">
+                                                <ColorArea.Thumb />
+                                            </ColorArea>
+                                            <ColorSlider channel="hue" colorSpace="hsl">
+                                                <ColorSlider.Track>
+                                                    <ColorSlider.Thumb />
+                                                </ColorSlider.Track>
+                                            </ColorSlider>
+                                        </ColorPicker.Popover>
+                                    </ColorPicker>
+                                </div>
+
                                 {mod.activities.map((act, aIndex) => (
                                     <RadioGroup
                                         key={mod.code + "-" + act.id + "-" + aIndex}
