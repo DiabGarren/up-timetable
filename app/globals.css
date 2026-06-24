@@ -69,29 +69,6 @@ body {
     }
 }
 
-
-.red {
-    background-color: #da5234;
-}
-.pink {
-    background-color: #d6837a;
-}
-.yellow {
-    background-color: #e7ba51;
-}
-.green {
-    background-color: #54ae7e;
-}
-.blue {
-    background-color: #4b99d2;
-}
-.purple {
-    background-color: #a75aba;
-}
-.grey {
-    background-color: #7c7c7c;
-}
-
 @supports selector(::-webkit-scrollbar) {
     .module-container::-webkit-scrollbar,
     .module-card::-webkit-scrollbar {

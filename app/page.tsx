@@ -87,20 +87,19 @@ export default function Home() {
     ];
 
     const COLOURS = [
-        "red",
-        "pink",
-        "yellow",
-        "green",
-        "blue",
-        "purple",
-        "grey",
-        "red",
-        "pink",
-        "yellow",
-        "green",
-        "blue",
-        "purple",
-        "grey",
+        "#d73230",
+        "#e1833e",
+        "#eae737",
+        "#8fe640",
+        "#1d921e",
+        "#51bcd6",
+        "#399cd6",
+        "#4745d5",
+        "#925bdd",
+        "#e16bcb",
+        "#e7b4ac",
+        "#935b4c",
+        "#7c7c7c",
     ];
 
     const [semester, setSemester] = useState("S1");
@@ -288,7 +287,11 @@ export default function Home() {
                                     } else {
                                         modsNew.push({
                                             code: mod.code,
-                                            colour: COLOURS[modsNew.length],
+                                            colour: COLOURS[
+                                                modsNew.length >= COLOURS.length
+                                                    ? modsNew.length - COLOURS.length
+                                                    : modsNew.length
+                                            ],
                                             sem: mod.sem,
                                             lang: mod.lang,
                                             activities: [{ id: mod.activity, group: groups! }],
@@ -332,11 +335,13 @@ export default function Home() {
                 <div className="module-container">
                     {modules.map((mod, mIndex) =>
                         mod.sem == semester ? (
-                            <div key={mod.code} className="module-card border w-[120px] h-[250px] overflow-y-auto">
-                                <h2 className={mod.colour}>{mod.code}</h2>
+                            <div
+                                key={mod.code + "-" + mIndex}
+                                className="module-card border w-[120px] h-[250px] overflow-y-auto">
+                                <h2 style={{ backgroundColor: mod.colour }}>{mod.code}</h2>
                                 {mod.activities.map((act, aIndex) => (
                                     <RadioGroup
-                                        key={mod.code + "-" + act.id}
+                                        key={mod.code + "-" + act.id + "-" + aIndex}
                                         value={
                                             act.group.findIndex((act) => act.selected == true) != -1
                                                 ? act.group[act.group.findIndex((act) => act.selected == true)].id
@@ -389,7 +394,9 @@ export default function Home() {
                                         }}>
                                         <Label>{act.id == "L" ? "Lectures" : act.id == "P" ? "Pracs" : "Tuts"}</Label>
                                         {act.group.map((group, gIndex) => (
-                                            <Radio key={mod.code + "-" + act.id + "-" + group.id} value={group.id}>
+                                            <Radio
+                                                key={mod.code + "-" + act.id + "-" + group.id + "-" + gIndex}
+                                                value={group.id}>
                                                 <Radio.Content>
                                                     <Radio.Control>
                                                         <Radio.Indicator />
@@ -432,14 +439,16 @@ export default function Home() {
                                 {day.map((cell, index) => (
                                     <td
                                         key={DAYS[index] + "-" + index}
-                                        className={
-                                            modules.length > 0
-                                                ? cell != ""
-                                                    ? modules[modules.findIndex((m) => m.code == cell.substring(0, 7))]
-                                                          .colour
-                                                    : ""
-                                                : ""
-                                        }>
+                                        style={{
+                                            backgroundColor:
+                                                modules.length > 0
+                                                    ? cell != ""
+                                                        ? modules[
+                                                              modules.findIndex((m) => m.code == cell.substring(0, 7))
+                                                          ].colour
+                                                        : ""
+                                                    : "",
+                                        }}>
                                         {cell}
                                     </td>
                                 ))}
