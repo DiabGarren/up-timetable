@@ -19,8 +19,9 @@ body {
 div.module-container {
 	display: flex;
 	flex-direction: row;
-	margin-inline: auto;
-	width: 85%;
+	margin: 0 auto;
+	max-width: 85%;
+    width: 840px;
 
 	&>div.module-card {
 		flex: 0 0 120px;
@@ -45,7 +46,8 @@ div.module-container {
 
 .timetable {
 	margin-inline: auto;
-	width: 90%;
+	max-width: 90%;
+    width: 840px;
     overflow: auto;
     display: grid;
     grid-template-columns: 50px 1fr;

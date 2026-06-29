@@ -137,6 +137,15 @@ export default function Home() {
         setModules(mods);
     }
 
+    /**
+     * Converts hsl colour code to hexadecimal colour code.
+     *
+     * @param h - Hue value.
+     * @param s - Saturation value.
+     * @param l - Lightness value.
+     * @returns Hexadecimal colour code.
+     */
+
     function convertColour(h: number, s: number, l: number): string {
         const lDecimal = l / 100;
         const a = (s * Math.min(lDecimal, 1 - lDecimal)) / 100;
@@ -145,13 +154,33 @@ export default function Home() {
             const k = (n + h / 30) % 12;
             const color = lDecimal - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
 
-            // Convert to a 2-digit hexadecimal string
             return Math.round(255 * color)
                 .toString(16)
                 .padStart(2, "0");
         };
 
         return `#${f(0)}${f(8)}${f(4)}`;
+    }
+
+    function countSelected(
+        activities: {
+            group: {
+                selected: boolean;
+                disabled: boolean;
+                id: string;
+                lessons: [{ sessionId: string; day: string; time: string; venue: string; campus: string }];
+            }[];
+            id: string;
+        }[],
+    ) {
+        let count = 0;
+        activities.forEach((a) => {
+            a.group.forEach((g) => {
+                count += g.selected == true ? 1 : 0;
+            });
+        });
+
+        return count;
     }
 
     return (
@@ -371,7 +400,11 @@ export default function Home() {
                         mod.sem == semester ? (
                             <div
                                 key={mod.code + "-" + mIndex}
-                                className="module-card border w-[120px] h-[250px] overflow-y-auto">
+                                className="module-card border w-[120px] h-[250px] overflow-y-auto"
+                                style={{
+                                    backgroundColor:
+                                        countSelected(mod.activities) == mod.activities.length ? "green" : "",
+                                }}>
                                 <div className="module-card-header" style={{ backgroundColor: mod.colour }}>
                                     <ColorPicker
                                         value={mod.colour}
@@ -448,41 +481,32 @@ export default function Home() {
                                                 }
                                             });
 
-                                            const mods = modules.map((mod, index) => {
-                                                if (index !== mIndex)
-                                                    return {
-                                                        ...mod,
-                                                        activities: mod.activities.map((a) => {
-                                                            return {
-                                                                ...a,
-                                                                group: a.group.map((g) => {
-                                                                    let clash = false;
-
-                                                                    g.lessons.forEach((lesson) => {
-                                                                        const startTime = ConvertTime(lesson.time)[0],
-                                                                            endTime = ConvertTime(lesson.time)[1],
-                                                                            day = ConvertDay(lesson.day, DAYS);
-
-                                                                        for (let i = startTime; i <= endTime; i++) {
-                                                                            clash =
-                                                                                tempTable[i][day] != "" && !g.selected;
-                                                                        }
-                                                                    });
-                                                                    return { ...g, disabled: clash };
-                                                                }),
-                                                            };
-                                                        }),
-                                                    };
+                                            const mods = modules.map((mod, mIdx) => {
                                                 return {
                                                     ...mod,
                                                     activities: mod.activities.map((a, aIdx) => {
-                                                        if (aIdx !== aIndex) return a;
                                                         return {
                                                             ...a,
-                                                            group: a.group.map((g) => ({
-                                                                ...g,
-                                                                selected: g.id == value,
-                                                            })),
+                                                            group: a.group.map((g) => {
+                                                                if (mIdx == mIndex && aIdx == aIndex)
+                                                                    return { ...g, selected: g.id == value };
+
+                                                                let clash = false;
+                                                                g.lessons.forEach((lesson) => {
+                                                                    const startTime = ConvertTime(lesson.time)[0],
+                                                                        endTime = ConvertTime(lesson.time)[1],
+                                                                        day = ConvertDay(lesson.day, DAYS);
+
+                                                                    for (
+                                                                        let i = startTime;
+                                                                        i <= endTime && !clash;
+                                                                        i++
+                                                                    ) {
+                                                                        clash = tempTable[i][day] != "" && !g.selected;
+                                                                    }
+                                                                });
+                                                                return { ...g, disabled: clash };
+                                                            }),
                                                         };
                                                     }),
                                                 };
