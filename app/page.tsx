@@ -89,18 +89,18 @@ export default function Home() {
     ];
 
     const COLOURS = [
-        "#d73230",
-        "#e1833e",
-        "#eae737",
+        "#4745d5",
         "#8fe640",
         "#1d921e",
-        "#51bcd6",
+        "#e1833e",
+        "#eae737",
         "#399cd6",
-        "#4745d5",
-        "#925bdd",
+        "#51bcd6",
         "#e16bcb",
-        "#e7b4ac",
+        "#d73230",
         "#935b4c",
+        "#925bdd",
+        "#e7b4ac",
         "#7c7c7c",
     ];
 
@@ -468,7 +468,6 @@ export default function Home() {
                                                                                 tempTable[i][day] != "" && !g.selected;
                                                                         }
                                                                     });
-                                                                    console.log(tempTable);
                                                                     return { ...g, disabled: clash };
                                                                 }),
                                                             };
