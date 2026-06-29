@@ -16,15 +16,25 @@ body {
     flex-direction: row;
 }
 
-.module-container {
+div.module-container {
 	display: flex;
 	flex-direction: row;
 	margin-inline: auto;
 	width: 85%;
 
-	&>* {
+	&>div.module-card {
 		flex: 0 0 120px;
+        position: relative;
+
+        &>div.module-card-header {
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
 	}
+    &>div.empty{
+		flex: 0 0 0px;
+    }
 }
 
 .module-container,

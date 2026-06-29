@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, ColorArea, ColorPicker, ColorSlider, Label, parseColor, Radio, RadioGroup } from "@heroui/react";
+import { Button, ColorArea, ColorPicker, ColorSlider, Label, Radio, RadioGroup } from "@heroui/react";
 import Image from "next/image";
 import { useState } from "react";
 import { extractText } from "unpdf";
@@ -55,6 +55,7 @@ export default function Home() {
                         id: string;
                         lessons: [{ sessionId: string; day: string; time: string; venue: string; campus: string }];
                         selected: boolean;
+                        disabled: boolean;
                     },
                 ];
             },
@@ -110,6 +111,7 @@ export default function Home() {
               activities: {
                   group: {
                       selected: boolean;
+                      disabled: boolean;
                       id: string;
                       lessons: [{ sessionId: string; day: string; time: string; venue: string; campus: string }];
                   }[];
@@ -129,7 +131,7 @@ export default function Home() {
             ...mod,
             activities: mod.activities.map((act) => ({
                 ...act,
-                group: act.group.map((g) => ({ ...g, selected: false })),
+                group: act.group.map((g) => ({ ...g, selected: false, disabled: false })),
             })),
         }));
         setModules(mods);
@@ -290,12 +292,26 @@ export default function Home() {
                                                 },
                                             ];
                                             selected: boolean;
+                                            disabled: boolean;
                                         },
                                     ];
                                     mod.group.forEach((group, index) => {
                                         if (index == 0)
-                                            groups = [{ id: group.id, lessons: group.lessons, selected: false }];
-                                        else groups.push({ id: group.id, lessons: group.lessons, selected: false });
+                                            groups = [
+                                                {
+                                                    id: group.id,
+                                                    lessons: group.lessons,
+                                                    selected: false,
+                                                    disabled: false,
+                                                },
+                                            ];
+                                        else
+                                            groups.push({
+                                                id: group.id,
+                                                lessons: group.lessons,
+                                                selected: false,
+                                                disabled: false,
+                                            });
                                     });
                                     if (modsNew.some((m) => m.code == mod.code)) {
                                         modsNew[modsNew.findIndex((m) => m.code == mod.code)].activities.push({
@@ -356,7 +372,7 @@ export default function Home() {
                             <div
                                 key={mod.code + "-" + mIndex}
                                 className="module-card border w-[120px] h-[250px] overflow-y-auto">
-                                <div style={{ backgroundColor: mod.colour }}>
+                                <div className="module-card-header" style={{ backgroundColor: mod.colour }}>
                                     <ColorPicker
                                         value={mod.colour}
                                         onChange={(value) => {
@@ -407,24 +423,6 @@ export default function Home() {
                                                 : null
                                         }
                                         onChange={(value) => {
-                                            const mods = modules.map((mod, index) => {
-                                                if (index !== mIndex) return mod;
-                                                return {
-                                                    ...mod,
-                                                    activities: mod.activities.map((a, aIdx) => {
-                                                        if (aIdx !== aIndex) return a;
-                                                        return {
-                                                            ...a,
-                                                            group: a.group.map((g) => ({
-                                                                ...g,
-                                                                selected: g.id == value,
-                                                            })),
-                                                        };
-                                                    }),
-                                                };
-                                            });
-                                            setModules(mods);
-
                                             const lessons =
                                                 act.group[act.group.findIndex((g) => g.id == value)].lessons;
                                             const tempTable = timetable.map((row) => [...row]);
@@ -449,13 +447,56 @@ export default function Home() {
                                                         mod.code + " - " + act.id + " - " + value;
                                                 }
                                             });
+
+                                            const mods = modules.map((mod, index) => {
+                                                if (index !== mIndex)
+                                                    return {
+                                                        ...mod,
+                                                        activities: mod.activities.map((a) => {
+                                                            return {
+                                                                ...a,
+                                                                group: a.group.map((g) => {
+                                                                    let clash = false;
+
+                                                                    g.lessons.forEach((lesson) => {
+                                                                        const startTime = ConvertTime(lesson.time)[0],
+                                                                            endTime = ConvertTime(lesson.time)[1],
+                                                                            day = ConvertDay(lesson.day, DAYS);
+
+                                                                        for (let i = startTime; i <= endTime; i++) {
+                                                                            clash =
+                                                                                tempTable[i][day] != "" && !g.selected;
+                                                                        }
+                                                                    });
+                                                                    console.log(tempTable);
+                                                                    return { ...g, disabled: clash };
+                                                                }),
+                                                            };
+                                                        }),
+                                                    };
+                                                return {
+                                                    ...mod,
+                                                    activities: mod.activities.map((a, aIdx) => {
+                                                        if (aIdx !== aIndex) return a;
+                                                        return {
+                                                            ...a,
+                                                            group: a.group.map((g) => ({
+                                                                ...g,
+                                                                selected: g.id == value,
+                                                            })),
+                                                        };
+                                                    }),
+                                                };
+                                            });
+                                            setModules(mods);
                                             setTimetable(tempTable);
                                         }}>
                                         <Label>{act.id == "L" ? "Lectures" : act.id == "P" ? "Pracs" : "Tuts"}</Label>
                                         {act.group.map((group, gIndex) => (
                                             <Radio
                                                 key={mod.code + "-" + act.id + "-" + group.id + "-" + gIndex}
-                                                value={group.id}>
+                                                value={group.id}
+                                                isDisabled={group.disabled}>
                                                 <Radio.Content>
                                                     <Radio.Control>
                                                         <Radio.Indicator />
@@ -468,7 +509,7 @@ export default function Home() {
                                 ))}
                             </div>
                         ) : (
-                            <></>
+                            <div key={mod.code + "-" + mIndex} className="empty"></div>
                         ),
                     )}
                 </div>
