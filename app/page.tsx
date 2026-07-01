@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, ColorArea, ColorPicker, ColorSlider, Label, Radio, RadioGroup } from "@heroui/react";
+import { Button, ColorArea, ColorPicker, ColorSlider, Label, Radio, RadioGroup, Tabs } from "@heroui/react";
 import Image from "next/image";
 import { useState } from "react";
 import { extractText } from "unpdf";
@@ -619,6 +619,52 @@ export default function Home() {
         }
     }
 
+    function displayDay(dayIndex: number) {
+        const lectures: {
+            code: string;
+            lang: string;
+            colour: string;
+            activity: {
+                id: string;
+                group: { id: string; lesson: { id: string; time: string; venue: string; campus: string } };
+            };
+        }[] = [];
+        timetable.map((time) => {
+            const code = time[dayIndex].substring(0, 7),
+                actId = time[dayIndex].substring(10, 11),
+                groupId = time[dayIndex].substring(14);
+
+            if (code) {
+                const mod = modules[modules.findIndex((m) => m.code == code)];
+                const act = mod.activities[mod.activities.findIndex((a) => a.id == actId)];
+                const group = act.group[act.group.findIndex((g) => g.id == groupId)];
+                const lesson = group.lessons[group.lessons.findIndex((l) => l.day == DAYS[dayIndex])];
+                const lecture = {
+                    code: mod.code,
+                    lang: mod.lang,
+                    colour: mod.colour,
+                    activity: {
+                        id: act.id,
+                        group: {
+                            id: group.id,
+                            lesson: {
+                                id: lesson.sessionId,
+                                time: lesson.time,
+                                venue: lesson.venue,
+                                campus: lesson.campus,
+                            },
+                        },
+                    },
+                };
+                if (!lectures.some((l) => l.code == lecture.code && l.activity.id == lecture.activity.id)) {
+                    lectures.push(lecture);
+                }
+            }
+        });
+
+        return lectures;
+    }
+
     return (
         <main>
             <input
@@ -869,7 +915,7 @@ export default function Home() {
                                     className="module-card border w-[120px] h-[250px] overflow-y-auto"
                                     style={{
                                         backgroundColor:
-                                            countSelected(mod.activities) == mod.activities.length ? "green" : "",
+                                            countSelected(mod.activities) == mod.activities.length ? "#22c522" : "",
                                     }}>
                                     <div className="module-card-header" style={{ backgroundColor: mod.colour }}>
                                         <ColorPicker
@@ -1062,12 +1108,48 @@ export default function Home() {
                 </table>
             </div>
             {modules.length > 0 ? (
-                <Button
-                    onClick={() => {
-                        clearTimetable();
-                    }}>
-                    Clear Timetable
-                </Button>
+                <>
+                    <Tabs className="break-down">
+                        <Tabs.ListContainer>
+                            <Tabs.List aria-label={"Days"}>
+                                {DAYS.map((day: string, index: number) => (
+                                    <Tabs.Tab key={day + "-" + index} id={day}>
+                                        {day}
+                                        {index == 0 ? <></> : <Tabs.Separator />}
+                                        <Tabs.Indicator />
+                                    </Tabs.Tab>
+                                ))}
+                            </Tabs.List>
+                        </Tabs.ListContainer>
+                        {DAYS.map((day: string, index: number) => (
+                            <Tabs.Panel key={day + "-" + index} id={day}>
+                                {displayDay(index).map((lec, lIndex) => (
+                                    <div key={lec.code + "-" + lIndex}>
+                                        <p>{lec.activity.group.lesson.time}</p>
+                                        <p>
+                                            {lec.code}:{" "}
+                                            <span>
+                                                {lec.activity.id == "L"
+                                                    ? "Lecture"
+                                                    : lec.activity.id == "P"
+                                                      ? "Practical"
+                                                      : "Tut"}
+                                            </span>
+                                            Venue: {lec.activity.group.lesson.venue}
+                                            Campus: {lec.activity.group.lesson.campus}
+                                        </p>
+                                    </div>
+                                ))}
+                            </Tabs.Panel>
+                        ))}
+                    </Tabs>
+                    <Button
+                        onClick={() => {
+                            clearTimetable();
+                        }}>
+                        Clear Timetable
+                    </Button>
+                </>
             ) : (
                 <></>
             )}
