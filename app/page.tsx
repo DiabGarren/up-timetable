@@ -829,6 +829,9 @@ export default function Home() {
                     }
                 }}
             />
+            <a href="/UP_Year_1_Timetable.pdf" download className="underline text-[#0000ff]">
+                Download Example Doc
+            </a>
 
             <RadioGroup
                 orientation="horizontal"
