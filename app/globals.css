@@ -9,12 +9,17 @@
 
 * {
     box-sizing: border-box;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--light-grey) white;
+    scroll-behavior: smooth;
 }
 
 body {
     margin: 0 auto;
     overflow-x: hidden;
-    padding: 15px 5px;
+    display: block;
+    padding: 10px;
 }
 
 .radio {
@@ -51,10 +56,8 @@ div.module-container {
     max-width: 95%;
     width: 872px;
     overflow-x: auto;
-
-    scrollbar-width: thin;
-    scrollbar-color: var(--light-grey) white;
-    scroll-behavior: smooth;
+    overflow-y: hidden;
+    position: relative;
 
     & > div.module-title-block {
         background-color: var(--light-grey);
@@ -103,10 +106,6 @@ div.module-container {
             overflow-y: auto;
             padding: 0 8px 8px;
 
-            scrollbar-width: thin;
-            scrollbar-color: var(--light-grey) white;
-            scroll-behavior: smooth;
-
             & .module-group-title {
                 text-align: center;
                 font-size: 16px;
@@ -118,18 +117,18 @@ div.module-container {
                 margin-block: 10px 0;
             }
         }
-
-        & > div.empty {
-            display: none;
-        }
     }
+}
+
+div.empty {
+    display: none;
 }
 
 .timetable {
     margin-inline: auto;
     max-width: 95%;
     width: 872px;
-    overflow: auto;
+    overflow-x: auto;
     display: grid;
     grid-template-columns: 50px 1fr;
 
@@ -167,9 +166,45 @@ div.module-container {
     }
 }
 
-.break-down {
-    min-height: 500px;
-    width: 840px;
-    max-width: 90%;
-    margin: 0 auto;
+div.break-down {
+    width: 872px;
+    max-width: 95%;
+    margin: 25px auto;
+
+    & > div.break-down-title-block {
+        overflow-x: auto;
+        width: 100%;
+
+        & > div.break-down-title-block-container {
+            background-color: var(--light-grey);
+            width: calc(5 * 129 + 4);
+            display: flex;
+            padding: 4px;
+            gap: 4px;
+            border-radius: 20px;
+
+            & > button.break-down-title {
+                /* width: calc(100% / 5); */
+                min-width: 125px;
+                width: 125px;
+                background-color: white;
+                border-radius: 16px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+
+                & > label.break-down-day {
+                    font-family: 16px;
+                    font-weight: 600;
+                }
+            }
+
+            & > button.break-down-title.selected {
+                background-color: var(--blue);
+                color: white;
+            }
+        }
+    }
 }

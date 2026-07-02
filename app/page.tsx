@@ -1,7 +1,6 @@
 "use client";
 
-import { Button, ColorArea, ColorPicker, ColorSlider, Label, Radio, RadioGroup, Tabs } from "@heroui/react";
-import Image from "next/image";
+import { Button, ColorArea, ColorPicker, ColorSlider, Label, Radio, RadioGroup } from "@heroui/react";
 import { useState } from "react";
 import { extractText } from "unpdf";
 
@@ -79,6 +78,7 @@ export default function Home() {
         }[]
     >([]);
     const [timetable, setTimetable] = useState<string[][]>(initialiseTable());
+    const [selDay, setSelDay] = useState<string>(DAYS[0]);
 
     function clearTimetable() {
         setTimetable(initialiseTable());
@@ -939,13 +939,6 @@ export default function Home() {
                                             }}>
                                             <ColorPicker.Trigger>
                                                 <label className="module-code">{mod.code}</label>
-                                                {/* <Image
-                                                    src={"/color-picker-dropper.svg"}
-                                                    alt={"Colour picker"}
-                                                    objectFit={"cover"}
-                                                    width={20}
-                                                    height={20}
-                                                /> */}
                                                 <svg
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     fill="#ffffff"
@@ -974,7 +967,7 @@ export default function Home() {
                                         </ColorPicker>
                                     </div>
                                 ) : (
-                                    <></>
+                                    <div className="empty" key={mod.code + "-" + mIndex}></div>
                                 ),
                             )}
                         </div>
@@ -984,7 +977,7 @@ export default function Home() {
                             {modules.map((mod, mIndex) =>
                                 mod.sem == semester ? (
                                     <div
-                                        key={mod.code + "--" + mIndex}
+                                        key={mod.code + "-" + mIndex}
                                         className="module-selection-card"
                                         style={{
                                             backgroundColor:
@@ -1086,7 +1079,7 @@ export default function Home() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div key={mod.code + "--" + mIndex} className="empty"></div>
+                                    <div key={mod.code + "-" + mIndex} className="empty"></div>
                                 ),
                             )}
                         </div>
@@ -1145,20 +1138,22 @@ export default function Home() {
             </div>
             {modules.length > 0 ? (
                 <>
-                    <Tabs className="break-down">
-                        <Tabs.ListContainer>
-                            <Tabs.List aria-label={"Days"}>
+                    <div className="break-down">
+                        <div className="break-down-title-block">
+                            <div className="break-down-title-block-container">
                                 {DAYS.map((day: string, index: number) => (
-                                    <Tabs.Tab key={day + "-" + index} id={day}>
-                                        {day}
-                                        {index == 0 ? <></> : <Tabs.Separator />}
-                                        <Tabs.Indicator />
-                                    </Tabs.Tab>
+                                    <button
+                                        key={day + "-" + index}
+                                        id={day}
+                                        className={`break-down-title ${selDay == day ? "selected" : ""}`}
+                                        onClick={() => setSelDay(day)}>
+                                        <label className="break-down-day">{day}</label>
+                                    </button>
                                 ))}
-                            </Tabs.List>
-                        </Tabs.ListContainer>
+                            </div>
+                        </div>
                         {DAYS.map((day: string, index: number) => (
-                            <Tabs.Panel key={day + "-" + index} id={day}>
+                            <div key={day + "-" + index} id={day}>
                                 {displayDay(index).map((lec, lIndex) => (
                                     <div key={lec.code + "-" + lIndex}>
                                         <p>{lec.activity.group.lesson.time}</p>
@@ -1169,16 +1164,16 @@ export default function Home() {
                                                     ? "Lecture"
                                                     : lec.activity.id == "P"
                                                       ? "Practical"
-                                                      : "Tut"}
+                                                      : "Tutorial"}
                                             </span>
                                             Venue: {lec.activity.group.lesson.venue}
                                             Campus: {lec.activity.group.lesson.campus}
                                         </p>
                                     </div>
                                 ))}
-                            </Tabs.Panel>
+                            </div>
                         ))}
-                    </Tabs>
+                    </div>
                     <Button
                         onClick={() => {
                             clearTimetable();
