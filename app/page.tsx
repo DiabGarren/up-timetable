@@ -43,18 +43,20 @@ export default function Home() {
     ];
 
     const COLOURS = [
-        "#4745d5",
+        "#ff0000",
         "#8fe640",
         "#1d921e",
-        "#e1833e",
-        "#eae737",
+        "#ff4c00",
+        "#e659d8",
         "#399cd6",
         "#51bcd6",
-        "#e16bcb",
+        "#9d4007",
         "#d73230",
-        "#935b4c",
         "#925bdd",
         "#e7b4ac",
+        "#5d5d5d",
+        "#5996e6",
+        "#935b4c",
         "#7c7c7c",
     ];
 
@@ -668,6 +670,7 @@ export default function Home() {
     return (
         <main>
             <input
+                className="file-input"
                 type="file"
                 accept="application/pdf, .pdf"
                 onChange={async (e) => {
@@ -875,11 +878,12 @@ export default function Home() {
                     }
                 }}
             />
-            <a href="/UP_Year_1_Timetable.pdf" download className="underline text-[#0000ff]">
+            <a href="/UP_Year_1_Timetable.pdf" download className="underline text-[#0000ff] block">
                 Download Example Doc
             </a>
 
             <RadioGroup
+                className="radio-semester"
                 orientation="horizontal"
                 value={semester}
                 onChange={(value) => {
@@ -908,16 +912,13 @@ export default function Home() {
             {modules.length > 0 ? (
                 <>
                     <div className="module-container">
-                        {modules.map((mod, mIndex) =>
-                            mod.sem == semester ? (
-                                <div
-                                    key={mod.code + "-" + mIndex}
-                                    className="module-card border w-[120px] h-[250px] overflow-y-auto"
-                                    style={{
-                                        backgroundColor:
-                                            countSelected(mod.activities) == mod.activities.length ? "#22c522" : "",
-                                    }}>
-                                    <div className="module-card-header" style={{ backgroundColor: mod.colour }}>
+                        <div className="module-title-block" style={{ width: modulesInSem().length * 129 + 4 + "px" }}>
+                            {modules.map((mod, mIndex) =>
+                                mod.sem == semester ? (
+                                    <div
+                                        key={mod.code + "-" + mIndex}
+                                        className="module-title"
+                                        style={{ backgroundColor: mod.colour }}>
                                         <ColorPicker
                                             value={mod.colour}
                                             onChange={(value) => {
@@ -937,14 +938,24 @@ export default function Home() {
                                                 setModules(mods);
                                             }}>
                                             <ColorPicker.Trigger>
-                                                <h2>{mod.code}</h2>
-                                                <Image
+                                                <label className="module-code">{mod.code}</label>
+                                                {/* <Image
                                                     src={"/color-picker-dropper.svg"}
                                                     alt={"Colour picker"}
                                                     objectFit={"cover"}
-                                                    width={25}
-                                                    height={25}
-                                                />
+                                                    width={20}
+                                                    height={20}
+                                                /> */}
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="#ffffff"
+                                                    height="20px"
+                                                    width="20px"
+                                                    version="1.1"
+                                                    id="Icons"
+                                                    viewBox="0 0 32 32">
+                                                    <path d="M27.7,3.3c-1.5-1.5-3.9-1.5-5.4,0L17,8.6l-1.3-1.3c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4l1.3,1.3L5,20.6  c-0.6,0.6-1,1.4-1.1,2.3C3.3,23.4,3,24.2,3,25c0,1.7,1.3,3,3,3c0.8,0,1.6-0.3,2.2-0.9C9,27,9.8,26.6,10.4,26L21,15.4l1.3,1.3  c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3c0.4-0.4,0.4-1,0-1.4L22.4,14l5.3-5.3C29.2,7.2,29.2,4.8,27.7,3.3z M9,24.6  c-0.4,0.4-0.8,0.6-1.3,0.5c-0.4,0-0.7,0.2-0.9,0.5C6.7,25.8,6.3,26,6,26c-0.6,0-1-0.4-1-1c0-0.3,0.2-0.7,0.5-0.8  c0.3-0.2,0.5-0.5,0.5-0.9c0-0.5,0.2-1,0.5-1.3L17,11.4l2.6,2.6L9,24.6z" />
+                                                </svg>
                                             </ColorPicker.Trigger>
                                             <ColorPicker.Popover>
                                                 <ColorArea
@@ -962,98 +973,123 @@ export default function Home() {
                                             </ColorPicker.Popover>
                                         </ColorPicker>
                                     </div>
+                                ) : (
+                                    <></>
+                                ),
+                            )}
+                        </div>
+                        <div
+                            className="module-selection-block"
+                            style={{ width: modulesInSem().length * 129 + 4 + "px" }}>
+                            {modules.map((mod, mIndex) =>
+                                mod.sem == semester ? (
+                                    <div
+                                        key={mod.code + "--" + mIndex}
+                                        className="module-selection-card"
+                                        style={{
+                                            backgroundColor:
+                                                countSelected(mod.activities) == mod.activities.length ? "#53d85c" : "",
+                                        }}>
+                                        {mod.activities.map((act, aIndex) => (
+                                            <RadioGroup
+                                                key={mod.code + "-" + act.id + "-" + aIndex}
+                                                value={
+                                                    act.group.findIndex((act) => act.selected == true) != -1
+                                                        ? act.group[act.group.findIndex((act) => act.selected == true)]
+                                                              .id
+                                                        : null
+                                                }
+                                                onChange={(value) => {
+                                                    const lessons =
+                                                        act.group[act.group.findIndex((g) => g.id == value)].lessons;
+                                                    const tempTable = timetable.map((row) => [...row]);
 
-                                    {mod.activities.map((act, aIndex) => (
-                                        <RadioGroup
-                                            key={mod.code + "-" + act.id + "-" + aIndex}
-                                            value={
-                                                act.group.findIndex((act) => act.selected == true) != -1
-                                                    ? act.group[act.group.findIndex((act) => act.selected == true)].id
-                                                    : null
-                                            }
-                                            onChange={(value) => {
-                                                const lessons =
-                                                    act.group[act.group.findIndex((g) => g.id == value)].lessons;
-                                                const tempTable = timetable.map((row) => [...row]);
-
-                                                tempTable.forEach((row, rIndex) => {
-                                                    row.forEach((col, cIndex) => {
-                                                        const code = col.substring(0, 7),
-                                                            actId = col.substring(10, 11),
-                                                            groupId = col.substring(14);
-                                                        if (code == mod.code && actId == act.id && groupId != value)
-                                                            tempTable[rIndex][cIndex] = "";
+                                                    tempTable.forEach((row, rIndex) => {
+                                                        row.forEach((col, cIndex) => {
+                                                            const code = col.substring(0, 7),
+                                                                actId = col.substring(10, 11),
+                                                                groupId = col.substring(14);
+                                                            if (code == mod.code && actId == act.id && groupId != value)
+                                                                tempTable[rIndex][cIndex] = "";
+                                                        });
                                                     });
-                                                });
 
-                                                lessons.forEach((lesson) => {
-                                                    for (
-                                                        let i = convertTime(lesson.time)[0];
-                                                        i <= convertTime(lesson.time)[1];
-                                                        i++
-                                                    ) {
-                                                        tempTable[i][convertDay(lesson.day)] =
-                                                            mod.code + " - " + act.id + " - " + value;
-                                                    }
-                                                });
+                                                    lessons.forEach((lesson) => {
+                                                        for (
+                                                            let i = convertTime(lesson.time)[0];
+                                                            i <= convertTime(lesson.time)[1];
+                                                            i++
+                                                        ) {
+                                                            tempTable[i][convertDay(lesson.day)] =
+                                                                mod.code + " - " + act.id + " - " + value;
+                                                        }
+                                                    });
 
-                                                const mods = modules.map((mod, mIdx) => {
-                                                    return {
-                                                        ...mod,
-                                                        activities: mod.activities.map((a, aIdx) => {
-                                                            return {
-                                                                ...a,
-                                                                group: a.group.map((g) => {
-                                                                    if (mIdx == mIndex && aIdx == aIndex)
-                                                                        return { ...g, selected: g.id == value };
+                                                    const mods = modules.map((mod, mIdx) => {
+                                                        return {
+                                                            ...mod,
+                                                            activities: mod.activities.map((a, aIdx) => {
+                                                                return {
+                                                                    ...a,
+                                                                    group: a.group.map((g) => {
+                                                                        if (mIdx == mIndex && aIdx == aIndex)
+                                                                            return { ...g, selected: g.id == value };
 
-                                                                    let clash = false;
-                                                                    g.lessons.forEach((lesson) => {
-                                                                        const startTime = convertTime(lesson.time)[0],
-                                                                            endTime = convertTime(lesson.time)[1],
-                                                                            day = convertDay(lesson.day);
+                                                                        let clash = false;
+                                                                        g.lessons.forEach((lesson) => {
+                                                                            const startTime = convertTime(
+                                                                                    lesson.time,
+                                                                                )[0],
+                                                                                endTime = convertTime(lesson.time)[1],
+                                                                                day = convertDay(lesson.day);
 
-                                                                        for (
-                                                                            let i = startTime;
-                                                                            i <= endTime && !clash;
-                                                                            i++
-                                                                        ) {
-                                                                            clash =
-                                                                                tempTable[i][day] != "" && !g.selected;
-                                                                        }
-                                                                    });
-                                                                    return { ...g, disabled: clash };
-                                                                }),
-                                                            };
-                                                        }),
-                                                    };
-                                                });
-                                                setModules(mods);
-                                                setTimetable(tempTable);
-                                            }}>
-                                            <Label>
-                                                {act.id == "L" ? "Lectures" : act.id == "P" ? "Pracs" : "Tuts"}
-                                            </Label>
-                                            {act.group.map((group, gIndex) => (
-                                                <Radio
-                                                    key={mod.code + "-" + act.id + "-" + group.id + "-" + gIndex}
-                                                    value={group.id}
-                                                    isDisabled={group.disabled}>
-                                                    <Radio.Content>
-                                                        <Radio.Control>
-                                                            <Radio.Indicator />
-                                                        </Radio.Control>
-                                                        {group.id}
-                                                    </Radio.Content>
-                                                </Radio>
-                                            ))}
-                                        </RadioGroup>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div key={mod.code + "-" + mIndex} className="empty"></div>
-                            ),
-                        )}
+                                                                            for (
+                                                                                let i = startTime;
+                                                                                i <= endTime && !clash;
+                                                                                i++
+                                                                            ) {
+                                                                                clash =
+                                                                                    tempTable[i][day] != "" &&
+                                                                                    !g.selected;
+                                                                            }
+                                                                        });
+                                                                        return { ...g, disabled: clash };
+                                                                    }),
+                                                                };
+                                                            }),
+                                                        };
+                                                    });
+                                                    setModules(mods);
+                                                    setTimetable(tempTable);
+                                                }}>
+                                                <Label className="module-group-title">
+                                                    {act.id == "L"
+                                                        ? "Lectures"
+                                                        : act.id == "P"
+                                                          ? "Practicals"
+                                                          : "Tutorials"}
+                                                </Label>
+                                                {act.group.map((group, gIndex) => (
+                                                    <Radio
+                                                        key={mod.code + "-" + act.id + "-" + group.id + "-" + gIndex}
+                                                        value={group.id}
+                                                        isDisabled={group.disabled}>
+                                                        <Radio.Content>
+                                                            <Radio.Control>
+                                                                <Radio.Indicator />
+                                                            </Radio.Control>
+                                                            {group.id}
+                                                        </Radio.Content>
+                                                    </Radio>
+                                                ))}
+                                            </RadioGroup>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div key={mod.code + "--" + mIndex} className="empty"></div>
+                                ),
+                            )}
+                        </div>
                     </div>
                     <Button
                         onClick={() => {

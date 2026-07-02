@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "@heroui/styles";
 
+:root {
+    --blue: #0485f7;
+    --light-grey: #d9d9d9;
+    --green: #53d85c;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -8,6 +14,7 @@
 body {
     margin: 0 auto;
     overflow-x: hidden;
+    padding: 15px 5px;
 }
 
 .radio {
@@ -16,37 +23,112 @@ body {
     flex-direction: row;
 }
 
-div.module-container {
-    display: flex;
-    flex-direction: row;
-    margin: 0 auto;
-    max-width: 85%;
-    width: 840px;
-
-    & > div.module-card {
-        flex: 0 0 120px;
-        position: relative;
-
-        & > div.module-card-header {
-            position: sticky;
-            top: 0;
-            z-index: 999;
-        }
-    }
-    & > div.empty {
-        flex: 0 0 0px;
-    }
+.radio__control {
+    border: 1px solid var(--blue);
 }
 
-.module-container,
-.module-card {
-    overflow: auto;
+.radio__content {
+    font-size: 16px;
+}
+
+.radio-semester {
+    margin: 15px auto;
+    width: 250px;
+}
+
+input.file-input::file-selector-button {
+    width: 135px;
+    height: 40px;
+    background-color: var(--blue);
+    border-radius: 20px;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+div.module-container {
+    margin: 0 auto;
+    max-width: 95%;
+    width: 872px;
+    overflow-x: auto;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--light-grey) white;
+    scroll-behavior: smooth;
+
+    & > div.module-title-block {
+        background-color: var(--light-grey);
+        border-radius: 20px;
+        padding: 4px;
+        display: flex;
+        gap: 4px;
+        cursor: pointer;
+
+        & > div.module-title {
+            width: 125px;
+            min-width: 125px;
+            height: 32px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+
+            & button.color-picker__trigger {
+                gap: 5px;
+            }
+
+            & label.module-code {
+                font-size: 16px;
+                font-weight: 600;
+                color: white;
+            }
+        }
+    }
+
+    & > div.module-selection-block {
+        background-color: var(--light-grey);
+        border-radius: 20px;
+        padding: 4px;
+        display: flex;
+        gap: 4px;
+        margin-block: 4px;
+
+        & > div.module-selection-card {
+            background-color: white;
+            border-radius: 16px;
+            width: 125px;
+            min-width: 125px;
+            height: 256px;
+            overflow-y: auto;
+            padding: 0 8px 8px;
+
+            scrollbar-width: thin;
+            scrollbar-color: var(--light-grey) white;
+            scroll-behavior: smooth;
+
+            & .module-group-title {
+                text-align: center;
+                font-size: 16px;
+                border-bottom: 2px solid var(--light-grey);
+                margin-block: 10px 5px;
+            }
+
+            & .radio {
+                margin-block: 10px 0;
+            }
+        }
+
+        & > div.empty {
+            display: none;
+        }
+    }
 }
 
 .timetable {
     margin-inline: auto;
-    max-width: 90%;
-    width: 840px;
+    max-width: 95%;
+    width: 872px;
     overflow: auto;
     display: grid;
     grid-template-columns: 50px 1fr;
@@ -63,6 +145,9 @@ div.module-container {
         table-layout: fixed;
         min-width: 725px;
         width: 100%;
+        color: white;
+        text-align: center;
+
         & td {
             border-right: 2px solid black;
         }
@@ -87,29 +172,4 @@ div.module-container {
     width: 840px;
     max-width: 90%;
     margin: 0 auto;
-}
-
-@supports selector(::-webkit-scrollbar) {
-    .module-container::-webkit-scrollbar,
-    .module-card::-webkit-scrollbar {
-        width: 5px;
-        height: 5px;
-    }
-    .module-container::-webkit-scrollbar-track,
-    .module-card::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
-
-    .module-container::-webkit-scrollbar-thumb,
-    .module-card::-webkit-scrollbar-thumb {
-        border-radius: 3px;
-        background: #888;
-    }
-}
-
-@supports not selector(::-webkit-scrollbar) {
-    .module-container,
-    .module-card {
-        scrollbar-width: thin;
-    }
 }
