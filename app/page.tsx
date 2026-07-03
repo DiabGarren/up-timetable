@@ -45,7 +45,7 @@ export default function Home() {
         "#ff0000",
         "#8fe640",
         "#1d921e",
-        "#ff4c00",
+        "#0004ff",
         "#e659d8",
         "#399cd6",
         "#51bcd6",
