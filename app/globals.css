@@ -56,8 +56,6 @@ div.module-container {
     max-width: 95%;
     width: 920px;
     overflow-x: auto;
-    /* overflow-y: hidden; */
-    position: relative;
 
     & > div.module-title-block {
         background-color: var(--light-grey);
