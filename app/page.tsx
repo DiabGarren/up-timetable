@@ -621,6 +621,29 @@ export default function Home() {
         }
     }
 
+    function countTimetableDayModule(code: string, day: number): number {
+        let count = 0;
+
+        timetable.map((times: string[]) => {
+            if (times[day] == code) count++;
+        });
+
+        return count;
+    }
+
+    function getTimetableVenue(code: string): string {
+        const modCode = code.substring(0, 7),
+            actId = code.substring(10, 11),
+            groupId = code.substring(14);
+
+        const mod = modules[modules.findIndex((m) => m.code == modCode)];
+        const activity = mod.activities[mod.activities.findIndex((act) => act.id == actId)];
+        const group = activity.group[activity.group.findIndex((group) => group.id == groupId)];
+        const venue = group.lessons[0].venue;
+
+        return venue;
+    }
+
     function displayDay(dayIndex: number) {
         const lectures: {
             code: string;
@@ -882,35 +905,34 @@ export default function Home() {
                 Download Example Doc
             </a>
 
-            <RadioGroup
-                className="radio-semester"
-                orientation="horizontal"
-                value={semester}
-                onChange={(value) => {
-                    setSemester(value);
-                    clearTimetable();
-                }}>
-                <Label />
-                <Radio value="S1">
-                    <Radio.Content>
-                        <Radio.Control>
-                            <Radio.Indicator />
-                        </Radio.Control>
-                        Semester 1
-                    </Radio.Content>
-                </Radio>
-                <Radio value="S2">
-                    <Radio.Content>
-                        <Radio.Control>
-                            <Radio.Indicator />
-                        </Radio.Control>
-                        Semester 2
-                    </Radio.Content>
-                </Radio>
-            </RadioGroup>
-
             {modules.length > 0 ? (
                 <>
+                    <RadioGroup
+                        className="radio-semester"
+                        orientation="horizontal"
+                        value={semester}
+                        onChange={(value) => {
+                            setSemester(value);
+                            clearTimetable();
+                        }}>
+                        <Label />
+                        <Radio value="S1">
+                            <Radio.Content>
+                                <Radio.Control>
+                                    <Radio.Indicator />
+                                </Radio.Control>
+                                Semester 1
+                            </Radio.Content>
+                        </Radio>
+                        <Radio value="S2">
+                            <Radio.Content>
+                                <Radio.Control>
+                                    <Radio.Indicator />
+                                </Radio.Control>
+                                Semester 2
+                            </Radio.Content>
+                        </Radio>
+                    </RadioGroup>
                     <div className="module-container">
                         <div className="module-title-block" style={{ width: modulesInSem().length * 129 + 4 + "px" }}>
                             {modules.map((mod, mIndex) =>
@@ -1088,7 +1110,13 @@ export default function Home() {
                         onClick={() => {
                             generateTimetable();
                         }}>
-                        Auto
+                        Generate Timetable
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            clearTimetable();
+                        }}>
+                        Clear Timetable
                     </Button>
                 </>
             ) : (
@@ -1096,47 +1124,53 @@ export default function Home() {
             )}
 
             <div className="timetable">
-                <div>
-                    {TIMES.map((time) => (
+                <div className="timetable-times-container">
+                    {TIMES.map((time: string) => (
                         <p key={time}>{time}</p>
                     ))}
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Monday</th>
-                            <th>Tuesday</th>
-                            <th>Wednesday</th>
-                            <th>Thursday</th>
-                            <th>Friday</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {timetable.map((day, index) => (
-                            <tr key={TIMES[index]}>
-                                {day.map((cell, index) => (
-                                    <td
-                                        key={DAYS[index] + "-" + index}
-                                        style={{
-                                            backgroundColor:
-                                                modules.length > 0
-                                                    ? cell != ""
-                                                        ? modules[
-                                                              modules.findIndex((m) => m.code == cell.substring(0, 7))
-                                                          ].colour
-                                                        : ""
-                                                    : "",
-                                        }}>
-                                        {cell}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
-                        <tr></tr>
-                    </tbody>
-                </table>
+                <div className="timetable-week">
+                    {timetable[0].map((day: string, dayIdx) => (
+                        <div key={DAYS[dayIdx]} className="timetable-day">
+                            {timetable.map((times: string[], timeIdx: number) => {
+                                if (times[dayIdx] == "") return <div key={TIMES[timeIdx]} className="empty"></div>;
+                                if (timeIdx == 0 || (timeIdx > 0 && timetable[timeIdx - 1][dayIdx] != times[dayIdx]))
+                                    return (
+                                        <div
+                                            key={TIMES[timeIdx]}
+                                            className="timetable-module"
+                                            style={{
+                                                backgroundColor:
+                                                    modules.length > 0
+                                                        ? modules.findIndex(
+                                                              (m) => m.code == times[dayIdx].substring(0, 7),
+                                                          ) == -1
+                                                            ? "white"
+                                                            : modules[
+                                                                  modules.findIndex(
+                                                                      (m) => m.code == times[dayIdx].substring(0, 7),
+                                                                  )
+                                                              ].colour
+                                                        : "white",
+                                                gridRowStart: timeIdx + 1,
+                                                gridRowEnd:
+                                                    timeIdx + countTimetableDayModule(times[dayIdx], dayIdx) + 1,
+                                            }}>
+                                            <p>
+                                                {times[dayIdx]} <br />
+                                                <span className="timetable-module-venue">
+                                                    {getTimetableVenue(times[dayIdx])}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    );
+                            })}
+                        </div>
+                    ))}
+                </div>
             </div>
-            {modules.length > 0 ? (
+
+            {0 > 0 ? (
                 <>
                     <div className="break-down">
                         <div className="break-down-title-block">
@@ -1174,12 +1208,6 @@ export default function Home() {
                             </div>
                         ))}
                     </div>
-                    <Button
-                        onClick={() => {
-                            clearTimetable();
-                        }}>
-                        Clear Timetable
-                    </Button>
                 </>
             ) : (
                 <></>

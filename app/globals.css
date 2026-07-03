@@ -12,7 +12,7 @@
 
     scrollbar-width: thin;
     scrollbar-color: var(--light-grey) white;
-    scroll-behavior: smooth;
+    /* scroll-behavior: smooth; */
 }
 
 body {
@@ -52,11 +52,11 @@ input.file-input::file-selector-button {
 }
 
 div.module-container {
-    margin: 0 auto;
+    margin: 15px auto;
     max-width: 95%;
-    width: 872px;
+    width: 920px;
     overflow-x: auto;
-    overflow-y: hidden;
+    /* overflow-y: hidden; */
     position: relative;
 
     & > div.module-title-block {
@@ -124,44 +124,73 @@ div.empty {
     display: none;
 }
 
-.timetable {
-    margin-inline: auto;
+div.timetable {
+    display: flex;
+    margin: 15px auto;
     max-width: 95%;
-    width: 872px;
+    width: 920px;
     overflow-x: auto;
-    display: grid;
-    grid-template-columns: 50px 1fr;
+    overflow-y: hidden;
+    position: relative;
+    gap: 4px;
 
-    & > *:first-child {
-        grid-column: 1/2;
-        margin-top: 13px;
-        & * {
-            height: 26px;
+    div.timetable-times-container {
+        background-color: var(--light-grey);
+        border-radius: 20px;
+        padding: 4px;
+        width: 83px;
+
+        & > p {
+            display: flex;
+            background-color: white;
+            border-radius: 16px;
+            height: 32px;
+            width: 75px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 4px;
+        }
+
+        & > p:last-child {
+            margin-bottom: 0;
         }
     }
-    & > *:last-child {
-        grid-column: 2/3;
-        table-layout: fixed;
-        min-width: 725px;
-        width: 100%;
-        color: white;
-        text-align: center;
 
-        & td {
-            border-right: 2px solid black;
-        }
-        & tr td:first-child {
-            border-left: 2px solid black;
-        }
-        & tr {
-            height: 26px;
-            border-bottom: 2px solid black;
-        }
-        & tr:nth-child(2n) {
-            background-color: #dbdbdb;
-        }
-        & tbody tr:last-child {
-            border-bottom: none;
+    div.timetable-week {
+        display: grid;
+        grid-template-columns: repeat(5, 152px);
+        background-color: var(--light-grey);
+        padding: 4px;
+        border-radius: 20px;
+        height: fit-content;
+        gap: 4px;
+        margin-top: 13px;
+
+        & > div.timetable-day {
+            display: grid;
+            grid-template-rows: repeat(20, 32px);
+            background-color: white;
+            border-radius: 16px;
+            padding: 4px;
+            gap: 4px;
+            height: 724px;
+
+            & > div.timetable-module {
+                border-radius: 14px;
+
+                & > p {
+                    font-weight: 600;
+                    color: white;
+                    text-align: center;
+                    padding-top: 5px;
+                    padding-inline: 3px;
+
+                    & > span.timetable-module-venue {
+                        font-weight: 400;
+                        font-size: 14px;
+                    }
+                }
+            }
         }
     }
 }
