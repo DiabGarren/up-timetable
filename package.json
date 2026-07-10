@@ -11,7 +11,8 @@
   "dependencies": {
     "@heroui/react": "^3.2.1",
     "@heroui/styles": "^3.2.1",
-    "next": "^16.2.9",
+    "html-to-image": "^1.11.13",
+    "next": "^16.2.10",
     "react": "^19.0.0-rc.1",
     "react-dom": "^19.0.0-rc.1",
     "unpdf": "^1.6.2"

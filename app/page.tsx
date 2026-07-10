@@ -1,19 +1,10 @@
 "use client";
 
-import {
-    Accordion,
-    Button,
-    ColorArea,
-    ColorPicker,
-    ColorSlider,
-    Disclosure,
-    Label,
-    Radio,
-    RadioGroup,
-} from "@heroui/react";
+import { Accordion, Button, ColorArea, ColorPicker, ColorSlider, Label, Radio, RadioGroup } from "@heroui/react";
+import { toPng } from "html-to-image";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { extractText } from "unpdf";
 
 export default function Home() {
@@ -91,6 +82,29 @@ export default function Home() {
     >([]);
     const [timetable, setTimetable] = useState<string[][]>(initialiseTable());
     const [selDay, setSelDay] = useState<string>(DAYS[0]);
+
+    const elementRef = useRef<HTMLDivElement>(null);
+    const handleDownload = useCallback(() => {
+        if (elementRef.current === null) return;
+
+        toPng(elementRef.current, {
+            cacheBust: true,
+            includeQueryParams: true,
+            backgroundColor: "#fff",
+            width: 921,
+            height: 786,
+            style: { margin: "12px 25px" },
+        })
+            .then((dataUrl) => {
+                const link = document.createElement("a");
+                link.download = "timetable.png";
+                link.href = dataUrl;
+                link.click();
+            })
+            .catch((error) => {
+                console.error("Failed to generate image:", error);
+            });
+    }, [elementRef]);
 
     function clearTimetable() {
         setTimetable(initialiseTable());
@@ -837,7 +851,8 @@ export default function Home() {
                                                     lines[i].indexOf(token[10]) + token[10].length,
                                                     lines[i].indexOf(campus),
                                                 )
-                                                .trim();
+                                                .trim()
+                                                .replace("Informatorium", "Inf.");
 
                                             const activity: Activity = {
                                                 code: token[0] + " " + token[1],
@@ -909,7 +924,7 @@ export default function Home() {
                                             sessionId: sessions[j],
                                             day: lines[i],
                                             time: lines[i + n],
-                                            venue: lines[i + 2 * n],
+                                            venue: lines[i + 2 * n].trim().replace("Informatorium", "Inf."),
                                             campus: campus,
                                         };
                                         i++;
@@ -1240,7 +1255,7 @@ export default function Home() {
                         </Button>
                     </div>
 
-                    <div className="timetable">
+                    <div className="timetable" ref={elementRef}>
                         <div className="timetable-times-container">
                             {TIMES.map((time: string) => (
                                 <p key={time}>{time}</p>
@@ -1293,6 +1308,9 @@ export default function Home() {
                                 </div>
                             ))}
                         </div>
+                    </div>
+                    <div className="download">
+                        <Button onClick={handleDownload}>Download Timetable</Button>
                     </div>
                 </>
             ) : (

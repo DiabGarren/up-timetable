@@ -69,6 +69,7 @@ div.module-container {
     max-width: 95%;
     width: 920px;
     overflow-x: auto;
+    position: relative;
 
     & > div.module-title-block {
         background-color: var(--light-grey);
@@ -117,6 +118,9 @@ div.module-container {
             overflow-y: auto;
             padding: 0 8px 8px;
 
+            position: sticky;
+            top: 0;
+
             & .module-group-title {
                 text-align: center;
                 font-size: 16px;
@@ -147,7 +151,7 @@ div.timetable {
     display: flex;
     margin: 15px auto;
     max-width: 95%;
-    width: 920px;
+    width: 871px;
     overflow-x: auto;
     overflow-y: hidden;
     position: relative;
@@ -212,6 +216,10 @@ div.timetable {
             }
         }
     }
+}
+
+div.download {
+    text-align: center;
 }
 
 div.break-down {
