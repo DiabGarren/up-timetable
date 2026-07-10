@@ -59,9 +59,19 @@ div.how-to {
     }
 }
 
+div.upload {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 920px;
+    margin: 0 auto;
+}
+
 .radio-semester {
     margin: 15px auto;
-    width: 250px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
 }
 
 div.module-container {
@@ -203,14 +213,22 @@ div.timetable {
 
                 & > p {
                     font-weight: 600;
+                    font-size: 15px;
                     color: white;
                     text-align: center;
                     padding-top: 5px;
                     padding-inline: 3px;
 
+                    & > span.timetable-module-time {
+                        display: block;
+                        font-size: 12px;
+                        line-height: 12px;
+                        font-weight: 400;
+                    }
+
                     & > span.timetable-module-venue {
                         font-weight: 400;
-                        font-size: 14px;
+                        font-size: 13px;
                     }
                 }
             }
@@ -220,47 +238,4 @@ div.timetable {
 
 div.download {
     text-align: center;
-}
-
-div.break-down {
-    width: 872px;
-    max-width: 95%;
-    margin: 25px auto;
-
-    & > div.break-down-title-block {
-        overflow-x: auto;
-        width: 100%;
-
-        & > div.break-down-title-block-container {
-            background-color: var(--light-grey);
-            width: calc(5 * 129 + 4);
-            display: flex;
-            padding: 4px;
-            gap: 4px;
-            border-radius: 20px;
-
-            & > button.break-down-title {
-                /* width: calc(100% / 5); */
-                min-width: 125px;
-                width: 125px;
-                background-color: white;
-                border-radius: 16px;
-                height: 32px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-
-                & > label.break-down-day {
-                    font-family: 16px;
-                    font-weight: 600;
-                }
-            }
-
-            & > button.break-down-title.selected {
-                background-color: var(--blue);
-                color: white;
-            }
-        }
-    }
 }
