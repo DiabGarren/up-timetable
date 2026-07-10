@@ -1,6 +1,18 @@
 "use client";
 
-import { Button, ColorArea, ColorPicker, ColorSlider, Label, Radio, RadioGroup } from "@heroui/react";
+import {
+    Accordion,
+    Button,
+    ColorArea,
+    ColorPicker,
+    ColorSlider,
+    Disclosure,
+    Label,
+    Radio,
+    RadioGroup,
+} from "@heroui/react";
+import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { extractText } from "unpdf";
 
@@ -128,7 +140,6 @@ export default function Home() {
      * @param l - Lightness value.
      * @returns Hexadecimal colour code.
      */
-
     function convertColour(h: number, s: number, l: number): string {
         const lDecimal = l / 100;
         const a = (s * Math.min(lDecimal, 1 - lDecimal)) / 100;
@@ -631,6 +642,19 @@ export default function Home() {
         return count;
     }
 
+    function getTimetableTime(code: string): string {
+        const modCode = code.substring(0, 7),
+            actId = code.substring(10, 11),
+            groupId = code.substring(14);
+
+        const mod = modules[modules.findIndex((m) => m.code == modCode)];
+        const activity = mod.activities[mod.activities.findIndex((act) => act.id == actId)];
+        const group = activity.group[activity.group.findIndex((group) => group.id == groupId)];
+        const time = group.lessons[0].time;
+
+        return time;
+    }
+
     function getTimetableVenue(code: string): string {
         const modCode = code.substring(0, 7),
             actId = code.substring(10, 11),
@@ -692,6 +716,100 @@ export default function Home() {
 
     return (
         <main>
+            <Accordion className="how-to">
+                <Accordion.Item>
+                    <Accordion.Heading>
+                        <Accordion.Trigger>
+                            How to use the UP Timetable builder
+                            <Accordion.Indicator />
+                        </Accordion.Trigger>
+                    </Accordion.Heading>
+                    <Accordion.Panel>
+                        <Accordion.Body>
+                            <Accordion allowsMultipleExpanded className="how-to-steps">
+                                <Accordion.Item>
+                                    <Accordion.Heading>
+                                        <Accordion.Trigger>
+                                            1. Log in to the UP Portal
+                                            <Accordion.Indicator />
+                                        </Accordion.Trigger>
+                                    </Accordion.Heading>
+                                    <Accordion.Panel>
+                                        <Accordion.Body>
+                                            <div className="how-to-image aspect-[3/2]">
+                                                <Image src="/howto/login.webp" alt="Login to UP Portal" fill />
+                                            </div>
+                                            <Link
+                                                className="underline text-[#0000ff]"
+                                                href="https://www1.up.ac.za/"
+                                                target="_blank">
+                                                UP Portal
+                                            </Link>
+                                        </Accordion.Body>
+                                    </Accordion.Panel>
+                                </Accordion.Item>
+                                <Accordion.Item>
+                                    <Accordion.Heading>
+                                        <Accordion.Trigger>
+                                            2. Click on the Timetable Module Lookup tile
+                                            <Accordion.Indicator />
+                                        </Accordion.Trigger>
+                                    </Accordion.Heading>
+                                    <Accordion.Panel>
+                                        <Accordion.Body>
+                                            <div className="how-to-image aspect-[3/2]">
+                                                <Image src="/howto/timetable.webp" alt="Timetable tile" fill />
+                                            </div>
+                                        </Accordion.Body>
+                                    </Accordion.Panel>
+                                </Accordion.Item>
+                                <Accordion.Item>
+                                    <Accordion.Heading>
+                                        <Accordion.Trigger>
+                                            3. Select the Lectures tab
+                                            <Accordion.Indicator />
+                                        </Accordion.Trigger>
+                                    </Accordion.Heading>
+                                    <Accordion.Panel>
+                                        <Accordion.Body>
+                                            <div className="how-to-image aspect-[2/1]">
+                                                <Image src="/howto/lectures.webp" alt="Lectures tab" fill />
+                                            </div>
+                                        </Accordion.Body>
+                                    </Accordion.Panel>
+                                </Accordion.Item>
+                                <Accordion.Item>
+                                    <Accordion.Heading>
+                                        <Accordion.Trigger>
+                                            4. Click the Download link
+                                            <Accordion.Indicator />
+                                        </Accordion.Trigger>
+                                    </Accordion.Heading>
+                                    <Accordion.Panel>
+                                        <Accordion.Body>
+                                            <div className="how-to-image aspect-[2/1]">
+                                                <Image src="/howto/download.webp" alt="Download link" fill />
+                                            </div>
+                                        </Accordion.Body>
+                                    </Accordion.Panel>
+                                </Accordion.Item>
+                                <Accordion.Item>
+                                    <Accordion.Heading>
+                                        <Accordion.Trigger>5. Download the file that opens</Accordion.Trigger>
+                                    </Accordion.Heading>
+                                </Accordion.Item>
+                                <Accordion.Item>
+                                    <Accordion.Heading>
+                                        <Accordion.Trigger>
+                                            6. Upload the .pdf file using the blue button below
+                                        </Accordion.Trigger>
+                                    </Accordion.Heading>
+                                </Accordion.Item>
+                            </Accordion>
+                        </Accordion.Body>
+                    </Accordion.Panel>
+                </Accordion.Item>
+            </Accordion>
             <input
                 className="file-input"
                 type="file"
@@ -901,9 +1019,9 @@ export default function Home() {
                     }
                 }}
             />
-            <a href="/UP_Year_1_Timetable.pdf" download className="underline text-[#0000ff] block">
+            <Link href="/UP_Year_1_Timetable.pdf" download className="underline text-[#0000ff] block">
                 Download Example Doc
-            </a>
+            </Link>
 
             {modules.length > 0 ? (
                 <>
@@ -1106,69 +1224,80 @@ export default function Home() {
                             )}
                         </div>
                     </div>
-                    <Button
-                        onClick={() => {
-                            generateTimetable();
-                        }}>
-                        Generate Timetable
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            clearTimetable();
-                        }}>
-                        Clear Timetable
-                    </Button>
+                    <div className="timetable-buttons">
+                        <Button
+                            onClick={() => {
+                                generateTimetable();
+                            }}>
+                            Generate Timetable
+                        </Button>
+                        <Button
+                            variant="danger"
+                            onClick={() => {
+                                clearTimetable();
+                            }}>
+                            Clear Timetable
+                        </Button>
+                    </div>
+
+                    <div className="timetable">
+                        <div className="timetable-times-container">
+                            {TIMES.map((time: string) => (
+                                <p key={time}>{time}</p>
+                            ))}
+                        </div>
+                        <div className="timetable-week">
+                            {timetable[0].map((day: string, dayIdx) => (
+                                <div key={DAYS[dayIdx]} className="timetable-day">
+                                    {timetable.map((times: string[], timeIdx: number) => {
+                                        if (times[dayIdx] == "")
+                                            return <div key={TIMES[timeIdx]} className="empty"></div>;
+                                        if (
+                                            timeIdx == 0 ||
+                                            (timeIdx > 0 && timetable[timeIdx - 1][dayIdx] != times[dayIdx])
+                                        )
+                                            return (
+                                                <div
+                                                    key={TIMES[timeIdx]}
+                                                    className="timetable-module"
+                                                    style={{
+                                                        backgroundColor:
+                                                            modules.length > 0
+                                                                ? modules.findIndex(
+                                                                      (m) => m.code == times[dayIdx].substring(0, 7),
+                                                                  ) == -1
+                                                                    ? "white"
+                                                                    : modules[
+                                                                          modules.findIndex(
+                                                                              (m) =>
+                                                                                  m.code ==
+                                                                                  times[dayIdx].substring(0, 7),
+                                                                          )
+                                                                      ].colour
+                                                                : "white",
+                                                        gridRowStart: timeIdx + 1,
+                                                        gridRowEnd:
+                                                            timeIdx +
+                                                            countTimetableDayModule(times[dayIdx], dayIdx) +
+                                                            1,
+                                                    }}>
+                                                    <p>
+                                                        {times[dayIdx]} <br />
+                                                        <span className="timetable-module-venue">
+                                                            {getTimetableVenue(times[dayIdx])}
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            );
+                                    })}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </>
             ) : (
                 <></>
             )}
-
-            <div className="timetable">
-                <div className="timetable-times-container">
-                    {TIMES.map((time: string) => (
-                        <p key={time}>{time}</p>
-                    ))}
-                </div>
-                <div className="timetable-week">
-                    {timetable[0].map((day: string, dayIdx) => (
-                        <div key={DAYS[dayIdx]} className="timetable-day">
-                            {timetable.map((times: string[], timeIdx: number) => {
-                                if (times[dayIdx] == "") return <div key={TIMES[timeIdx]} className="empty"></div>;
-                                if (timeIdx == 0 || (timeIdx > 0 && timetable[timeIdx - 1][dayIdx] != times[dayIdx]))
-                                    return (
-                                        <div
-                                            key={TIMES[timeIdx]}
-                                            className="timetable-module"
-                                            style={{
-                                                backgroundColor:
-                                                    modules.length > 0
-                                                        ? modules.findIndex(
-                                                              (m) => m.code == times[dayIdx].substring(0, 7),
-                                                          ) == -1
-                                                            ? "white"
-                                                            : modules[
-                                                                  modules.findIndex(
-                                                                      (m) => m.code == times[dayIdx].substring(0, 7),
-                                                                  )
-                                                              ].colour
-                                                        : "white",
-                                                gridRowStart: timeIdx + 1,
-                                                gridRowEnd:
-                                                    timeIdx + countTimetableDayModule(times[dayIdx], dayIdx) + 1,
-                                            }}>
-                                            <p>
-                                                {times[dayIdx]} <br />
-                                                <span className="timetable-module-venue">
-                                                    {getTimetableVenue(times[dayIdx])}
-                                                </span>
-                                            </p>
-                                        </div>
-                                    );
-                            })}
-                        </div>
-                    ))}
-                </div>
-            </div>
 
             {0 > 0 ? (
                 <>

@@ -3,6 +3,7 @@
 
 :root {
     --blue: #0485f7;
+    --red: #d80202;
     --light-grey: #d9d9d9;
     --green: #53d85c;
 }
@@ -36,11 +37,6 @@ body {
     font-size: 16px;
 }
 
-.radio-semester {
-    margin: 15px auto;
-    width: 250px;
-}
-
 input.file-input::file-selector-button {
     width: 135px;
     height: 40px;
@@ -49,6 +45,23 @@ input.file-input::file-selector-button {
     color: white;
     font-weight: 700;
     cursor: pointer;
+}
+
+div.how-to {
+    width: 100%;
+    margin: 0 auto;
+    max-width: 450px;
+    & div.how-to-steps {
+        & div.how-to-image {
+            position: relative;
+            width: 100%;
+        }
+    }
+}
+
+.radio-semester {
+    margin: 15px auto;
+    width: 250px;
 }
 
 div.module-container {
@@ -120,6 +133,14 @@ div.module-container {
 
 div.empty {
     display: none;
+}
+
+div.timetable-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 20px;
 }
 
 div.timetable {
