@@ -656,7 +656,7 @@ export default function Home() {
         return count;
     }
 
-    function getTimetableTime(code: string): string {
+    function getTimetableTime(code: string, dayIndex: number): string {
         const modCode = code.substring(0, 7),
             actId = code.substring(10, 11),
             groupId = code.substring(14);
@@ -664,12 +664,13 @@ export default function Home() {
         const mod = modules[modules.findIndex((m) => m.code == modCode)];
         const activity = mod.activities[mod.activities.findIndex((act) => act.id == actId)];
         const group = activity.group[activity.group.findIndex((group) => group.id == groupId)];
-        const time = group.lessons[0].time;
+        const day = DAYS[dayIndex];
+        const time = group.lessons[group.lessons.findIndex((l) => l.day == day)].time;
 
         return time;
     }
 
-    function getTimetableVenue(code: string): string {
+    function getTimetableVenue(code: string, dayIndex: number): string {
         const modCode = code.substring(0, 7),
             actId = code.substring(10, 11),
             groupId = code.substring(14);
@@ -677,7 +678,8 @@ export default function Home() {
         const mod = modules[modules.findIndex((m) => m.code == modCode)];
         const activity = mod.activities[mod.activities.findIndex((act) => act.id == actId)];
         const group = activity.group[activity.group.findIndex((group) => group.id == groupId)];
-        const venue = group.lessons[0].venue;
+        const day = DAYS[dayIndex];
+        const venue = group.lessons[group.lessons.findIndex((l) => l.day == day)].venue;
 
         return venue;
     }
@@ -1309,10 +1311,10 @@ export default function Home() {
                                                     <p>
                                                         {times[dayIdx]} <br />
                                                         <span className="timetable-module-time">
-                                                            {getTimetableTime(times[dayIdx])}
+                                                            {getTimetableTime(times[dayIdx], dayIdx)}
                                                         </span>
                                                         <span className="timetable-module-venue">
-                                                            {getTimetableVenue(times[dayIdx])}
+                                                            {getTimetableVenue(times[dayIdx], dayIdx)}
                                                         </span>
                                                     </p>
                                                 </div>
